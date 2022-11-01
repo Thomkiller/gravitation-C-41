@@ -1,12 +1,34 @@
-from turtle import position, speed
+import random
+from tkinter import Tk
+from tkinter import ttk
 
 
-class World():
+class App(Tk):
+    def __init__(self):
+        super().__init__()
 
-    def __init__(self, width=50, height=50, entities=None):
+        self.title('Gravity Simulator')
+
+        test = World(self)
+    
+
+class World(ttk.Frame):
+
+    def __init__(self, parent, width=50, height=50):
+        super().__init__(parent)
         self.width = width
         self.height = height
-        self.entities = entities
+        self.entities = []
+        self.create_balls 
+        print('after')
+
+    def create_balls(self):
+        for i in range(20):
+            self.entities.append(Ball(random.randint(1,10), Color(random.randint(0,255),random.randint(0,255),random.randint(0,255),255)))
+
+    
+
+        
 
 class Entity():
     def __init__(self, position, speed, acceleration):
@@ -29,8 +51,14 @@ class Ball(Entity):
         super().__init__()
 
 
+class Point():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
 def main():
-    pass
+    app = App()
+    app.mainloop()
 
 if __name__ == '__main__':
     main()
