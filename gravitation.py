@@ -44,24 +44,24 @@ class World(ttk.Frame):
     
     def key_up(self):
         for entity in self.__entities:
-            entity.speed = Point(0, -5)
+            entity.acceleration = Point(0, -5)
 
     def key_down(self):
         for entity in self.__entities:
-            entity.speed = Point(0, 5)
+            entity.acceleration = Point(0, 5)
 
     def key_left(self):
         for entity in self.__entities:
-            entity.speed = Point(-5, 0)
+            entity.acceleration = Point(-5, 0)
     
     def key_right(self):
         for entity in self.__entities:
-            entity.speed = Point(5, 0)
+            entity.acceleration = Point(5, 0)
     
     def __create_balls(self):
         for _ in range(20):
             random_ball_size = random.randint(10, 80)
-            self.__entities.append(Ball(random_ball_size, Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)), Point((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))), Point((random.choice([-2,-1.5,-1, 1, 1.5, 2])),(random.choice([-2,-1.5,-1, 1, 1.5, 2]) )))) 
+            self.__entities.append(Ball(random_ball_size, Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)), Point((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))), Point((random.choice([-2,-1.5,-1, 1, 1.5, 2])),(random.choice([-2,-1.5,-1, 1, 1.5, 2]) )), Point(1,1))) 
             
     def __draw(self):
         self.__background = Image.new(mode='RGB', size=(self.__width, self.__height), color=(0,0,0))
@@ -75,7 +75,7 @@ class World(ttk.Frame):
     def ticker(self):
         if self.__ticker_enabled:
             for ball in self.__entities:
-                ball.tick()
+                ball.tick(Point(self.__width, self.__height))
             self.__draw()
         self.after(1, self.ticker)
 
@@ -135,23 +135,31 @@ class Ball(Entity):
     def color(self):
         return self.__color
     
-    def tick(self):
+    def tick(self, borders):
         # use vect2d to calculate new position
         self.position.x += self.speed.x
         self.position.y += self.speed.y
         # check for collisions
-        if self.position.x + self.radius >= 800:
-            self.position.x = 800 - self.radius
+        if self.position.x + self.radius >= borders.x:
+            self.position.x = borders.x - self.radius
             self.speed.x *= -1
+            self.acceleration.x *= -1
+            self.acceleration.y *= -1
         if self.position.x <= 0:
             self.position.x = 0
             self.speed.x *= -1
-        if self.position.y + self.radius >= 600:
-            self.position.y = 600 - self.radius
+            self.acceleration.x *= -1
+            self.acceleration.y *= -1
+        if self.position.y + self.radius >= borders.y:
+            self.position.y = borders.y - self.radius
             self.speed.y *= -1
+            self.acceleration.x *= -1
+            self.acceleration.y *= -1
         if self.position.y <= 0:
             self.position.y = 0
             self.speed.y *= -1
+            self.acceleration.x *= -1
+            self.acceleration.y *= -1
         
 
 class Point():
