@@ -13,12 +13,16 @@ class App(Tk):
         self.title('Gravity Simulator')
         self.geometry(str(self.__width) + 'x' + str(self.__height))
 
-        self.__test = World(self, self.__width, self.__height)
+        self.__world = World(self, self.__width, self.__height)
        
-        self.bind('<space>', lambda e: self.__test.toggle())
+        self.bind('<space>', lambda _: self.__world.toggle())
+        self.bind('<Left>', lambda _: self.__world.key_left())
+        self.bind('<Right>', lambda _: self.__world.key_right())
+        self.bind('<Up>', lambda _: self.__world.key_up())
+        self.bind('<Down>', lambda _: self.__world.key_down())
        
         # main loop for moving entities
-        self.__test.ticker()
+        self.__world.ticker()
         
 
 class World(ttk.Frame):
@@ -37,6 +41,22 @@ class World(ttk.Frame):
     
     def toggle(self):
         self.__ticker_enabled = not self.__ticker_enabled
+    
+    def key_up(self):
+        for entity in self.__entities:
+            entity.speed = Point(0, -5)
+
+    def key_down(self):
+        for entity in self.__entities:
+            entity.speed = Point(0, 5)
+
+    def key_left(self):
+        for entity in self.__entities:
+            entity.speed = Point(-5, 0)
+    
+    def key_right(self):
+        for entity in self.__entities:
+            entity.speed = Point(5, 0)
     
     def __create_balls(self):
         for _ in range(20):
@@ -80,6 +100,14 @@ class Entity():
     @position.setter
     def position(self, value):
         self.__position = value
+        
+    @speed.setter
+    def speed(self, value):
+        self.__speed = value
+        
+    @acceleration.setter
+    def acceleration(self, value):
+        self.__acceleration = value
     
     def tick():
         pass
