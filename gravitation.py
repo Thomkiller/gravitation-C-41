@@ -17,6 +17,7 @@ class App(Tk):
         
         # main loop for moving entities
         self.after(0, self.__test.ticker)
+        
 
 
 class World(ttk.Frame):
@@ -34,13 +35,13 @@ class World(ttk.Frame):
     def __create_balls(self):
         for _ in range(20):
             random_ball_size = random.randint(10, 80)
-            self.__entities.append(Ball(random_ball_size,((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))),Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)))) 
+            self.__entities.append(Ball(random_ball_size, Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)), Point((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))), Point((random.choice([-2,-1.5,-1, 1, 1.5, 2])),(random.choice([-2,-1.5,-1, 1, 1.5, 2]))))) 
             
     def __draw(self):
         self.__background = Image.new(mode='RGB', size=(self.__width, self.__height), color=(0,0,0))
         draw = ImageDraw.Draw(self.__background)
         for ball in self.__entities:
-            draw.ellipse([ball.position[0], ball.position[1], ball.position[0] + ball.radius, ball.position[1] + ball.radius], fill=(ball.color._r, ball.color._g, ball.color._b), width=0)
+            draw.ellipse([ball.position.x, ball.position.y, ball.position.x + ball.radius, ball.position.y + ball.radius], fill=(ball.color._r, ball.color._g, ball.color._b), width=0)
         self.__image = ImageTk.PhotoImage(self.__background)  
         self.__main_label['image'] = self.__image 
         self.__main_label.pack()
@@ -49,7 +50,7 @@ class World(ttk.Frame):
         for ball in self.__entities:
             ball.tick()
         self.__draw()
-        self.after(100, self.update)
+        self.after(1, self.ticker)
 
 class Entity():
     def __init__(self, position=(0,0), speed = (0,0), acceleration = (0,0)):
@@ -69,6 +70,10 @@ class Entity():
     def acceleration(self):
         return self.__acceleration
     
+    @position.setter
+    def position(self, value):
+        self.__position = value
+    
     def tick():
         pass
 
@@ -82,8 +87,8 @@ class Color():
 
 
 class Ball(Entity):
-    def __init__(self, radius, position, color):
-        super().__init__(position)
+    def __init__(self, radius, color, position = (0,0), speed = (0,0), acceleration = (0,0)):
+        super().__init__(position, speed, acceleration)
         self.__radius = radius
         self.__color = color
 
@@ -94,7 +99,25 @@ class Ball(Entity):
     @property
     def color(self):
         return self.__color
-
+    
+    def tick(self):
+        # use vect2d to calculate new position
+        self.position.x += self.speed.x
+        self.position.y += self.speed.y
+        # check for collisions
+        if self.position.x + self.radius >= 800:
+            self.position.x = 800 - self.radius
+            self.speed.x *= -1
+        if self.position.x <= 0:
+            self.position.x = 0
+            self.speed.x *= -1
+        if self.position.y + self.radius >= 600:
+            self.position.y = 600 - self.radius
+            self.speed.y *= -1
+        if self.position.y <= 0:
+            self.position.y = 0
+            self.speed.y *= -1
+        
 
 class Point():
     def __init__(self, x, y):
