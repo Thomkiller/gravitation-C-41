@@ -13,7 +13,10 @@ class App(Tk):
         self.title('Gravity Simulator')
         self.geometry(str(self.__width) + 'x' + str(self.__height))
 
-        test = World(self, self.__width, self.__height)
+        self.__test = World(self, self.__width, self.__height)
+        
+        # main loop for moving entities
+        self.after(0, self.__test.ticker)
 
 
 class World(ttk.Frame):
@@ -30,7 +33,8 @@ class World(ttk.Frame):
     
     def __create_balls(self):
         for _ in range(20):
-            self.__entities.append(Ball(random.randint(1,100), Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)))) 
+            random_ball_size = random.randint(10, 80)
+            self.__entities.append(Ball(random_ball_size,((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))),Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)))) 
             
     def __draw(self):
         self.__background = Image.new(mode='RGB', size=(self.__width, self.__height), color=(0,0,0))
@@ -40,6 +44,12 @@ class World(ttk.Frame):
         self.__image = ImageTk.PhotoImage(self.__background)  
         self.__main_label['image'] = self.__image 
         self.__main_label.pack()
+        
+    def ticker(self):
+        for ball in self.__entities:
+            ball.tick()
+        self.__draw()
+        self.after(100, self.update)
 
 class Entity():
     def __init__(self, position=(0,0), speed = (0,0), acceleration = (0,0)):
@@ -72,8 +82,8 @@ class Color():
 
 
 class Ball(Entity):
-    def __init__(self, radius, color):
-        super().__init__()
+    def __init__(self, radius, position, color):
+        super().__init__(position)
         self.__radius = radius
         self.__color = color
 
