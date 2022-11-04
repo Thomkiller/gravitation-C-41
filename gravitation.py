@@ -14,11 +14,12 @@ class App(Tk):
         self.geometry(str(self.__width) + 'x' + str(self.__height))
 
         self.__test = World(self, self.__width, self.__height)
-        
+       
+        self.bind('<space>', lambda e: self.__test.toggle())
+       
         # main loop for moving entities
-        self.after(0, self.__test.ticker)
+        self.__test.ticker()
         
-
 
 class World(ttk.Frame):
 
@@ -27,15 +28,20 @@ class World(ttk.Frame):
         self.__width = width
         self.__height = height
         self.__entities = []
+        self.__ticker_enabled = True
         self.__create_balls()
         self.__main_label = ttk.Label(self)
         self.__draw()
+        
         self.pack()
+    
+    def toggle(self):
+        self.__ticker_enabled = not self.__ticker_enabled
     
     def __create_balls(self):
         for _ in range(20):
             random_ball_size = random.randint(10, 80)
-            self.__entities.append(Ball(random_ball_size, Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)), Point((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))), Point((random.choice([-2,-1.5,-1, 1, 1.5, 2])),(random.choice([-2,-1.5,-1, 1, 1.5, 2]))))) 
+            self.__entities.append(Ball(random_ball_size, Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)), Point((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))), Point((random.choice([-2,-1.5,-1, 1, 1.5, 2])),(random.choice([-2,-1.5,-1, 1, 1.5, 2]) )))) 
             
     def __draw(self):
         self.__background = Image.new(mode='RGB', size=(self.__width, self.__height), color=(0,0,0))
@@ -47,9 +53,10 @@ class World(ttk.Frame):
         self.__main_label.pack()
         
     def ticker(self):
-        for ball in self.__entities:
-            ball.tick()
-        self.__draw()
+        if self.__ticker_enabled:
+            for ball in self.__entities:
+                ball.tick()
+            self.__draw()
         self.after(1, self.ticker)
 
 class Entity():
