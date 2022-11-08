@@ -206,7 +206,6 @@ class Ball(Entity):
             self.acceleration.x *= -1
             self.acceleration.y *= -1
         
-        print(gravity_enabled)
         if gravity_enabled:
             a = 1
             G = 0.0075
