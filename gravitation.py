@@ -208,7 +208,7 @@ class Ball(Entity):
         
         if gravity_enabled:
             a = 1
-            G = 0.0075
+            G = 0.0005
             acceleration = Vect2D()
             for i in entities:
             #calculate acceleration
