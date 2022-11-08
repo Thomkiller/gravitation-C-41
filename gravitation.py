@@ -205,6 +205,8 @@ class Ball(Entity):
             self.speed.y *= -0.85
             self.acceleration.x *= -1
             self.acceleration.y *= -1
+            
+        self.acceleration = Vect2D(0, 0)
         
         if gravity_enabled:
             a = 1
