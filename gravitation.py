@@ -209,13 +209,13 @@ class Ball(Entity):
         self.acceleration = Vect2D(0, 0)
         
         if gravity_enabled:
-            a = 1
-            G = 0.0005
+            a = 100
+            G = 0.00085
             acceleration = Vect2D()
             for i in entities:
             #calculate acceleration
                 if self != i:
-                    dist = self.position-i.position
+                    dist = i.position-self.position
                     acceleration += i.mass * dist/(dist.length_squared + a**2)**(3/2)
             acceleration *= G
             self.acceleration = acceleration
