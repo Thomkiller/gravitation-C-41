@@ -44,19 +44,19 @@ class World(ttk.Frame):
     
     def key_up(self):
         for entity in self.__entities:
-            entity.acceleration = Point(0, -5)
+            entity.speed = Point(0, -5)
 
     def key_down(self):
         for entity in self.__entities:
-            entity.acceleration = Point(0, 5)
+            entity.speed = Point(0, 5)
 
     def key_left(self):
         for entity in self.__entities:
-            entity.acceleration = Point(-5, 0)
+            entity.speed = Point(-5, 0)
     
     def key_right(self):
         for entity in self.__entities:
-            entity.acceleration = Point(5, 0)
+            entity.speed= Point(5, 0)
     
     def __create_balls(self):
         for _ in range(20):
