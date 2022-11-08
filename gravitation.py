@@ -32,6 +32,7 @@ class World(ttk.Frame):
         self.__height = height
         self.__entities = []
         self.__ticker_enabled = True
+        self.__gravity_enabled = False
         self.__create_balls()
         self.__main_label = ttk.Label(self)
         self.__draw()
@@ -42,6 +43,9 @@ class World(ttk.Frame):
     def toggle(self):
         self.__ticker_enabled = not self.__ticker_enabled
 
+    def toggle_gravity(self):
+        self.__gravity_enabled = not self.__gravity_enabled
+
     def handle_arrow(self, event):        
         #check if key is pressed or released        
         for entity in self.__entities:
@@ -50,12 +54,14 @@ class World(ttk.Frame):
             if event.type == '2':
                 if event.keysym == 'Left':
                     self.__keys[0] = True
-                elif event.keysym == 'Right':
+                if event.keysym == 'Right':
                     self.__keys[1] = True
-                elif event.keysym == 'Up':
+                if event.keysym == 'Up':
                     self.__keys[2] = True
-                elif event.keysym == 'Down':
+                if event.keysym == 'Down':
                     self.__keys[3] = True
+                if event.keysym == 'g':
+                    self.toggle_gravity()
                     
                 #calculate velocity
                 if self.__keys[0]:
@@ -70,13 +76,13 @@ class World(ttk.Frame):
                 if event.keysym == 'Left':
                     self.__keys[0] = False
                     entity.__calc_velocity.x += 1
-                elif event.keysym == 'Right':
+                if event.keysym == 'Right':
                     self.__keys[1] = False
                     entity.__calc_velocity.x -= 1
-                elif event.keysym == 'Up':
+                if event.keysym == 'Up':
                     self.__keys[2] = False
                     entity.__calc_velocity.y += 1
-                elif event.keysym == 'Down':
+                if event.keysym == 'Down':
                     self.__keys[3] = False
                     entity.__calc_velocity.y -= 1
                 
@@ -104,7 +110,7 @@ class World(ttk.Frame):
     def ticker(self):
         if self.__ticker_enabled:
             for ball in self.__entities:
-                ball.tick(Vect2D(self.__width, self.__height), self.__entities)
+                ball.tick(Vect2D(self.__width, self.__height), self.__entities, self.__gravity_enabled)
             self.__draw()
         self.after(1, self.ticker)
 
@@ -170,7 +176,7 @@ class Ball(Entity):
     def mass(self):
         return self.__mass
     
-    def tick(self, borders, entities):
+    def tick(self, borders, entities, gravity_enabled):
         #handle gravity
         self.speed = Vect2D(self.speed.x + (self.acceleration.x), self.speed.y + (self.acceleration.y))
         self.position = Vect2D(self.position.x + self.speed.x, self.position.y + self.speed.y)
@@ -196,16 +202,17 @@ class Ball(Entity):
             self.acceleration.x *= -1
             self.acceleration.y *= -1
         
-        a = 1
-        G = 0.0005
-        acceleration = Vect2D()
-        for i in entities:
+        if gravity_enabled:
+            a = 1
+            G = 0.0005
+            acceleration = Vect2D()
+            for i in self.entities:
             #calculate acceleration
-            if self != i:
-                dist = self.position-i.position
-                acceleration += i.mass * dist/(dist.length_squared + a**2)**(3/2)
-        acceleration *= G
-        self.acceleration = acceleration
+                if self != i:
+                    dist = self.position-i.position
+                    acceleration += i.mass * dist/(dist.length_squared + a**2)**(3/2)
+            acceleration *= G
+            self.acceleration = acceleration
 
 
 def main():
