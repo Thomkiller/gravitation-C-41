@@ -3,7 +3,7 @@ import random
 from tkinter import Tk
 from tkinter import ttk
 from PIL import Image, ImageTk, ImageDraw
-import vect2d
+from vect2d import Vect2D
 
 class App(Tk):
     def __init__(self):
@@ -45,7 +45,7 @@ class World(ttk.Frame):
     def handle_arrow(self, event):        
         #check if key is pressed or released        
         for entity in self.__entities:
-            entity.__calc_velocity = Point(0,0)
+            entity.__calc_velocity = Vect2D(0,0)
 
             if event.type == '2':
                 if event.keysym == 'Left':
@@ -83,23 +83,28 @@ class World(ttk.Frame):
             entity.acceleration = entity.__calc_velocity
     
     def __create_balls(self):
-        for _ in range(20):
+        for _ in range(30):
             random_ball_size = random.randint(10, 80)
-            self.__entities.append(Ball(random_ball_size, Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)), Point((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))), Point((random.choice([-2,-1.5,-1, 1, 1.5, 2])),(random.choice([-2,-1.5,-1, 1, 1.5, 2]) )), Point(0,0))) 
+            self.__entities.append(Ball(random_ball_size, Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)), Vect2D((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))), Vect2D((random.choice([-2,-1.5,-1, 1, 1.5, 2])),(random.choice([-2,-1.5,-1, 1, 1.5, 2]) )), Vect2D(0,0))) 
             
     def __draw(self):
         self.__background = Image.new(mode='RGB', size=(self.__width, self.__height), color=(0,0,0))
         draw = ImageDraw.Draw(self.__background)
         for ball in self.__entities:
             draw.ellipse([ball.position.x, ball.position.y, ball.position.x + ball.radius, ball.position.y + ball.radius], fill=(ball.color._r, ball.color._g, ball.color._b), width=0)
+            #lolipop
+            #draw.line([ball.position.x + ball.radius*2, ball.position.y + ball.radius*2, ball.position.x + ball.radius/2 + ball.acceleration.x * 10, ball.position.y + ball.radius/2 + ball.acceleration.y * 10], fill=(255,255,255), width=1)
+            
+
         self.__image = ImageTk.PhotoImage(self.__background)  
         self.__main_label['image'] = self.__image 
         self.__main_label.pack()
         
+        
     def ticker(self):
         if self.__ticker_enabled:
             for ball in self.__entities:
-                ball.tick(Point(self.__width, self.__height))
+                ball.tick(Vect2D(self.__width, self.__height), self.__entities)
             self.__draw()
         self.after(1, self.ticker)
 
@@ -165,11 +170,10 @@ class Ball(Entity):
     def mass(self):
         return self.__mass
     
-    def tick(self, borders):
-
+    def tick(self, borders, entities):
         #handle gravity
-        self.speed = Point(self.speed.x + (self.acceleration.x), self.speed.y + (self.acceleration.y))
-        self.position = Point(self.position.x + self.speed.x, self.position.y + self.speed.y)
+        self.speed = Vect2D(self.speed.x + (self.acceleration.x), self.speed.y + (self.acceleration.y))
+        self.position = Vect2D(self.position.x + self.speed.x, self.position.y + self.speed.y)
         # check for collisions
         if self.position.x + self.radius >= borders.x:
             self.position.x = borders.x - self.radius
@@ -192,12 +196,16 @@ class Ball(Entity):
             self.acceleration.x *= -1
             self.acceleration.y *= -1
         
-        self.acceleration = Point(0,0)
-
-class Point():
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        a = 1
+        G = 0.0005
+        acceleration = Vect2D()
+        for i in entities:
+            #calculate acceleration
+            if self != i:
+                dist = self.position-i.position
+                acceleration += i.mass * dist/(dist.length_squared + a**2)**(3/2)
+        acceleration *= G
+        self.acceleration = acceleration
 
 
 def main():
