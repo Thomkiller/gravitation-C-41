@@ -44,24 +44,24 @@ class World(ttk.Frame):
     
     def key_up(self):
         for entity in self.__entities:
-            entity.speed = Point(0, -5)
-
+            entity.acceleration = Point(0, -1)
+       
     def key_down(self):
         for entity in self.__entities:
-            entity.speed = Point(0, 5)
+            entity.acceleration = Point(0, 1)
 
     def key_left(self):
         for entity in self.__entities:
-            entity.speed = Point(-5, 0)
+            entity.acceleration = Point(-1, 0)
     
     def key_right(self):
         for entity in self.__entities:
-            entity.speed= Point(5, 0)
+            entity.acceleration = Point(1, 0)
     
     def __create_balls(self):
         for _ in range(20):
             random_ball_size = random.randint(10, 80)
-            self.__entities.append(Ball(random_ball_size, Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)), Point((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))), Point((random.choice([-2,-1.5,-1, 1, 1.5, 2])),(random.choice([-2,-1.5,-1, 1, 1.5, 2]) )), Point(1,1))) 
+            self.__entities.append(Ball(random_ball_size, Color(random.randint(0,255),random.randint(0,255),random.randint(0,255)), Point((random.randint(0, self.__width - random_ball_size)),(random.randint(0,self.__height - random_ball_size))), Point((random.choice([-2,-1.5,-1, 1, 1.5, 2])),(random.choice([-2,-1.5,-1, 1, 1.5, 2]) )), Point(0,0))) 
             
     def __draw(self):
         self.__background = Image.new(mode='RGB', size=(self.__width, self.__height), color=(0,0,0))
@@ -136,6 +136,10 @@ class Ball(Entity):
         return self.__color
     
     def tick(self, borders):
+
+        #handle gravity
+        self.speed = Point(self.speed.x + self.acceleration.x, self.speed.y + self.acceleration.y)
+        
         # use vect2d to calculate new position
         self.position.x += self.speed.x
         self.position.y += self.speed.y
@@ -161,6 +165,7 @@ class Ball(Entity):
             self.acceleration.x *= -1
             self.acceleration.y *= -1
         
+        self.acceleration = Point(0,0)
 
 class Point():
     def __init__(self, x, y):
