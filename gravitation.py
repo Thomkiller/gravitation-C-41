@@ -16,10 +16,8 @@ class App(Tk):
         self.__world = World(self, self.__width, self.__height)
        
         self.bind('<space>', lambda _: self.__world.toggle())
-        self.bind('<Left>', lambda _: self.__world.key_left())
-        self.bind('<Right>', lambda _: self.__world.key_right())
-        self.bind('<Up>', lambda _: self.__world.key_up())
-        self.bind('<Down>', lambda _: self.__world.key_down())
+        self.bind('<KeyPress>', self.__world.handle_arrow)
+        self.bind('<KeyRelease>', self.__world.handle_arrow)
        
         # main loop for moving entities
         self.__world.ticker()
@@ -36,17 +34,52 @@ class World(ttk.Frame):
         self.__create_balls()
         self.__main_label = ttk.Label(self)
         self.__draw()
+        self.__keys = [False, False, False, False]
         
         self.pack()
     
     def toggle(self):
         self.__ticker_enabled = not self.__ticker_enabled
-    
-    def key_up(self):
+
+    def handle_arrow(self, event):        
+        #check if key is pressed or released        
         for entity in self.__entities:
-            entity.acceleration = Point(0, -1)
+            entity.__calc_velocity = Point(0,0)
 
-
+            if event.type == '2':
+                if event.keysym == 'Left':
+                    self.__keys[0] = True
+                elif event.keysym == 'Right':
+                    self.__keys[1] = True
+                elif event.keysym == 'Up':
+                    self.__keys[2] = True
+                elif event.keysym == 'Down':
+                    self.__keys[3] = True
+            elif event.type == '3':
+                if event.keysym == 'Left':
+                    self.__keys[0] = False
+                    entity.__calc_velocity = Point(0,0)
+                elif event.keysym == 'Right':
+                    self.__keys[1] = False
+                    entity.__calc_velocity = Point(0,0)
+                elif event.keysym == 'Up':
+                    self.__keys[2] = False
+                    entity.__calc_velocity = Point(0,0)
+                elif event.keysym == 'Down':
+                    self.__keys[3] = False
+                    entity.__calc_velocity = Point(0,0)
+                
+            #calculate velocity
+            if self.__keys[0]:
+                entity.__calc_velocity.x = -1
+            if self.__keys[1]:
+                entity.__calc_velocity.x = 1
+            if self.__keys[2]:
+                entity.__calc_velocity.y = -1
+            if self.__keys[3]:
+                entity.__calc_velocity.y = 1
+                
+            entity.acceleration = entity.__calc_velocity
        
     def key_down(self):
         for entity in self.__entities:
@@ -140,27 +173,27 @@ class Ball(Entity):
     def tick(self, borders):
 
         #handle gravity
-        self.speed = Point(self.speed.x + (self.acceleration.x*1/2), self.speed.y + (self.acceleration.y*1/2))
+        self.speed = Point(self.speed.x + (self.acceleration.x), self.speed.y + (self.acceleration.y))
         self.position = Point(self.position.x + self.speed.x, self.position.y + self.speed.y)
         # check for collisions
         if self.position.x + self.radius >= borders.x:
             self.position.x = borders.x - self.radius
-            self.speed.x *= -1
+            self.speed.x *= -0.85
             self.acceleration.x *= -1
             self.acceleration.y *= -1
         if self.position.x <= 0:
             self.position.x = 0
-            self.speed.x *= -1
+            self.speed.x *= -0.85
             self.acceleration.x *= -1
             self.acceleration.y *= -1
         if self.position.y + self.radius >= borders.y:
             self.position.y = borders.y - self.radius
-            self.speed.y *= -1
+            self.speed.y *= -0.85
             self.acceleration.x *= -1
             self.acceleration.y *= -1
         if self.position.y <= 0:
             self.position.y = 0
-            self.speed.y *= -1
+            self.speed.y *= -0.85
             self.acceleration.x *= -1
             self.acceleration.y *= -1
         
