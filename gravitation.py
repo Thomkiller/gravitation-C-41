@@ -1,3 +1,4 @@
+import math
 import random
 from tkinter import Tk
 from tkinter import ttk
@@ -55,43 +56,31 @@ class World(ttk.Frame):
                     self.__keys[2] = True
                 elif event.keysym == 'Down':
                     self.__keys[3] = True
+                    
+                #calculate velocity
+                if self.__keys[0]:
+                    entity.__calc_velocity.x = -1
+                if self.__keys[1]:
+                    entity.__calc_velocity.x = 1
+                if self.__keys[2]:
+                    entity.__calc_velocity.y = -1
+                if self.__keys[3]:
+                    entity.__calc_velocity.y = 1
             elif event.type == '3':
                 if event.keysym == 'Left':
                     self.__keys[0] = False
-                    entity.__calc_velocity = Point(0,0)
+                    entity.__calc_velocity.x += 1
                 elif event.keysym == 'Right':
                     self.__keys[1] = False
-                    entity.__calc_velocity = Point(0,0)
+                    entity.__calc_velocity.x -= 1
                 elif event.keysym == 'Up':
                     self.__keys[2] = False
-                    entity.__calc_velocity = Point(0,0)
+                    entity.__calc_velocity.y += 1
                 elif event.keysym == 'Down':
                     self.__keys[3] = False
-                    entity.__calc_velocity = Point(0,0)
-                
-            #calculate velocity
-            if self.__keys[0]:
-                entity.__calc_velocity.x = -1
-            if self.__keys[1]:
-                entity.__calc_velocity.x = 1
-            if self.__keys[2]:
-                entity.__calc_velocity.y = -1
-            if self.__keys[3]:
-                entity.__calc_velocity.y = 1
+                    entity.__calc_velocity.y -= 1
                 
             entity.acceleration = entity.__calc_velocity
-       
-    def key_down(self):
-        for entity in self.__entities:
-            entity.acceleration = Point(0, 1)
-
-    def key_left(self):
-        for entity in self.__entities:
-            entity.acceleration = Point(-1, 0)
-    
-    def key_right(self):
-        for entity in self.__entities:
-            entity.acceleration = Point(1, 0)
     
     def __create_balls(self):
         for _ in range(20):
@@ -114,12 +103,13 @@ class World(ttk.Frame):
             self.__draw()
         self.after(1, self.ticker)
 
+
 class Entity():
     def __init__(self, position=(0,0), speed = (0,0), acceleration = (0,0)):
         self.__position = position
         self.__speed = speed
         self.__acceleration = acceleration
-    
+        
     @property
     def position(self):
         return self.__position
@@ -161,6 +151,7 @@ class Ball(Entity):
         super().__init__(position, speed, acceleration)
         self.__radius = radius
         self.__color = color
+        self.__mass = ((4/3) * math.pi * (self.__radius ** 3))
 
     @property
     def radius(self):
@@ -169,6 +160,10 @@ class Ball(Entity):
     @property
     def color(self):
         return self.__color
+    
+    @property
+    def mass(self):
+        return self.__mass
     
     def tick(self, borders):
 
