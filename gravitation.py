@@ -46,8 +46,14 @@ class World(ttk.Frame):
     def toggle_gravity(self):
         self.__gravity_enabled = not self.__gravity_enabled
 
-    def handle_arrow(self, event):        
-        #check if key is pressed or released        
+    def handle_arrow(self, event):
+        if event.type == '2':     
+            if event.keysym == 'g':
+                self.__gravity_enabled = True
+        elif event.type == '3':
+            if event.keysym == 'g':
+                self.__gravity_enabled = False
+        #check if key is pressed or released    
         for entity in self.__entities:
             entity.__calc_velocity = Vect2D(0,0)
 
@@ -60,8 +66,6 @@ class World(ttk.Frame):
                     self.__keys[2] = True
                 if event.keysym == 'Down':
                     self.__keys[3] = True
-                if event.keysym == 'g':
-                    self.toggle_gravity()
                     
                 #calculate velocity
                 if self.__keys[0]:
@@ -202,11 +206,12 @@ class Ball(Entity):
             self.acceleration.x *= -1
             self.acceleration.y *= -1
         
+        print(gravity_enabled)
         if gravity_enabled:
             a = 1
-            G = 0.0005
+            G = 0.0075
             acceleration = Vect2D()
-            for i in self.entities:
+            for i in entities:
             #calculate acceleration
                 if self != i:
                     dist = self.position-i.position
