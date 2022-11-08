@@ -45,6 +45,8 @@ class World(ttk.Frame):
     def key_up(self):
         for entity in self.__entities:
             entity.acceleration = Point(0, -1)
+
+
        
     def key_down(self):
         for entity in self.__entities:
@@ -138,11 +140,8 @@ class Ball(Entity):
     def tick(self, borders):
 
         #handle gravity
-        self.speed = Point(self.speed.x + self.acceleration.x, self.speed.y + self.acceleration.y)
-        
-        # use vect2d to calculate new position
-        self.position.x += self.speed.x
-        self.position.y += self.speed.y
+        self.speed = Point(self.speed.x + (self.acceleration.x*1/2), self.speed.y + (self.acceleration.y*1/2))
+        self.position = Point(self.position.x + self.speed.x, self.position.y + self.speed.y)
         # check for collisions
         if self.position.x + self.radius >= borders.x:
             self.position.x = borders.x - self.radius
